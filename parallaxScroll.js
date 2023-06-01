@@ -77,10 +77,36 @@ function startAnimation() {
     }
 
     if (passNum !== 2)
-      handleScroll(event, passNum+1);
+      handleScroll(event, passNum + 1);
   }
 
-  window.addEventListener('wheel', handleScroll);
+  var startY = 0;
+  var threshold = 50;
+  var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // Add event listeners for touch and scroll events on the window or the desired element
+    window.addEventListener('touchstart', function (event) {
+      startY = event.touches[0].clientY; // Store the initial touch position
+    });
+
+    window.addEventListener('touchmove', function (event) {
+      var currentY = event.touches[0].clientY; // Get the current touch position
+      
+      // Calculate the distance between the initial and current touch positions
+      var deltaY = currentY - startY;
+      
+      if (deltaY > threshold) {
+        console.log('scrolling up')
+        requestAnimationFrame(() => handleScroll({ deltaY: -0.8 }))
+      } else if (deltaY < -threshold) {
+        console.log('scrolling down')
+        requestAnimationFrame(() => handleScroll({ deltaY: 0.8 }))
+      }
+    });
+  } else {
+    window.addEventListener('wheel', handleScroll);
+  }
 }
 
 function isInViewport(element) {
